@@ -11,4 +11,6 @@ extern lv_obj_t * mainScreen;
 extern bool use24HS;
 extern uint8_t brightness;
 
+void GoSleep();
+
 #endif

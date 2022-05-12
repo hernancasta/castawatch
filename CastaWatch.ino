@@ -5,6 +5,8 @@
 #include "CastaWatchCommon.h"
 #include "AppList.h"
 
+bool irq = false;
+
 void setup() {
     Serial.begin(115200);
 
@@ -12,6 +14,10 @@ void setup() {
         Initialize Watch
      **************************/
     ttgo = TTGOClass::getWatch();
+
+    ttgo->motor_begin();
+    ttgo->motor->onec(50);
+
     ttgo->begin();
     ttgo->openBL();
     ttgo->setBrightness(128);
@@ -68,6 +74,24 @@ void setup() {
      * *******************/
     lv_obj_update_snap(panel, LV_ANIM_ON);
 
+    /*********************
+     * Setup Interruptions for WakeUp
+     * ******************/
+
+    pinMode(AXP202_INT, INPUT_PULLUP);
+        attachInterrupt(AXP202_INT, [] {
+            irq = true;
+        }, FALLING);
+
+    ttgo->power->enableIRQ(AXP202_PEK_SHORTPRESS_IRQ,true);
+    ttgo->power->clearIRQ();
+
+    /****************************
+     * Initialize Audio
+     * **************************/
+
+    ttgo->enableAudio();
+    ttgo->disableAudio();
 }
 
 bool lowbright = false;
@@ -77,12 +101,15 @@ void loop() {
     updateDisplay();
     delay(5);
 
-    ttgo->power->readIRQ();
-    if (ttgo->power->isPEKShortPressIRQ()){
-        Serial.printf("CLICK!\n");
-        lowbright = !lowbright;
-        
-        ttgo->power->clearIRQ();
+    if (irq){
+        ttgo->power->readIRQ();
+        if (ttgo->power->isPEKShortPressIRQ()){
+            Serial.printf("CLICK!\n");
+            lowbright = !lowbright;
+            irq=false;
+            ttgo->power->clearIRQ();
+            GoSleep();
+        }
     }
     if (lowbright){
             ttgo->setBrightness(1);
