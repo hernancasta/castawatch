@@ -107,8 +107,8 @@ void LaunchSetDate(){
                           "56\n57\n58\n59",
                           LV_ROLLER_MODE_NORMAL);
 
-    lv_roller_set_visible_row_count(rollerHour, 3);
-    lv_roller_set_visible_row_count(rollerMin, 3);
+    lv_roller_set_visible_row_count(rollerHour, 4);
+    lv_roller_set_visible_row_count(rollerMin, 4);
     lv_obj_add_style(rollerHour, &style_sel, LV_PART_MAIN);
     lv_obj_add_style(rollerMin, &style_sel, LV_PART_MAIN);
 
