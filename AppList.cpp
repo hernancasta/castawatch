@@ -5,12 +5,14 @@
 #include "AppList.h"
 
 #include "SetDateTime.h"
+#include "GeneralSettingsDisplay.h"
 
 static lv_obj_t * list1;
 lv_obj_t * btn1;
 lv_obj_t * btn2;
 lv_obj_t * btn3;
 lv_obj_t * btn4;
+lv_obj_t * btn5;
 
 
 static void event_handler_btn1(lv_event_t * e)
@@ -22,10 +24,16 @@ static void event_handler_btn1(lv_event_t * e)
         String txt = lv_list_get_btn_text(list1, target);
         Serial.println("CLICK! " + txt);
 
+        // Set DateTime
         if (target == btn1){
-            Serial.println("OPENING SET DATE");
             LaunchSetDate();
         }
+        // General Settings
+        if (target == btn2){
+            LaunchGeneralSettings();
+        }
+
+
 
     }
 }
@@ -43,10 +51,12 @@ void initializeAppList(lv_obj_t* parent){
 
     btn1=lv_list_add_btn(list1,LV_SYMBOL_SETTINGS, "Set Date / Time");
     lv_obj_add_event_cb(btn1, event_handler_btn1, LV_EVENT_CLICKED, NULL);
-    btn2=lv_list_add_btn(list1,LV_SYMBOL_BLUETOOTH, "BLE");
+    btn2=lv_list_add_btn(list1,LV_SYMBOL_SETTINGS, "Settings");
     lv_obj_add_event_cb(btn2, event_handler_btn1, LV_EVENT_CLICKED, NULL);
-    btn3=lv_list_add_btn(list1,LV_SYMBOL_WIFI, "WIFI");
+    btn3=lv_list_add_btn(list1,LV_SYMBOL_BLUETOOTH, "BLE");
     lv_obj_add_event_cb(btn3, event_handler_btn1, LV_EVENT_CLICKED, NULL);
-    btn4=lv_list_add_btn(list1,LV_SYMBOL_BELL, "Alarms");
+    btn4=lv_list_add_btn(list1,LV_SYMBOL_WIFI, "WIFI");
     lv_obj_add_event_cb(btn4, event_handler_btn1, LV_EVENT_CLICKED, NULL);
+    btn5=lv_list_add_btn(list1,LV_SYMBOL_BELL, "Alarms");
+    lv_obj_add_event_cb(btn5, event_handler_btn1, LV_EVENT_CLICKED, NULL);
 }

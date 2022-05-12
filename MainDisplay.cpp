@@ -10,6 +10,8 @@
 lv_obj_t *timeLabel;
 lv_obj_t *dateLabel;
 lv_obj_t *batLabel;
+lv_obj_t *ampmLabel;
+
 
 void initializeClock(lv_obj_t* parent){
 
@@ -18,14 +20,14 @@ void initializeClock(lv_obj_t* parent){
     timeLabel = lv_label_create(parent);
     lv_label_set_text(timeLabel, "00:00");
     lv_obj_set_style_text_align(timeLabel, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(timeLabel, LV_ALIGN_CENTER, 0, -20);
+    lv_obj_align(timeLabel, LV_ALIGN_CENTER, 0, -10);
     LV_FONT_DECLARE(dseg_14_reg_60);
     lv_obj_set_style_text_font(timeLabel, &dseg_14_reg_60, LV_STATE_DEFAULT);
 
     dateLabel = lv_label_create(parent);
     lv_label_set_text(dateLabel, "{date}");
     lv_obj_set_style_text_align(dateLabel, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(dateLabel, LV_ALIGN_CENTER, 0, 35);
+    lv_obj_align(dateLabel, LV_ALIGN_CENTER, 0, 45);
     lv_obj_set_style_text_font(dateLabel, &lv_font_montserrat_32, LV_STATE_DEFAULT);
 
     batLabel = lv_label_create(parent);
@@ -34,6 +36,12 @@ void initializeClock(lv_obj_t* parent){
     lv_obj_align(batLabel, LV_ALIGN_TOP_RIGHT, 0, 0);
     lv_obj_set_style_text_font(batLabel, &lv_font_montserrat_22, LV_STATE_DEFAULT);
     lv_label_set_recolor(batLabel, true);
+
+    ampmLabel = lv_label_create(parent);
+    lv_label_set_text(ampmLabel, "");
+    lv_obj_set_style_text_align(ampmLabel, LV_TEXT_ALIGN_RIGHT, 0);
+    lv_obj_align(ampmLabel, LV_ALIGN_CENTER, 90, -60);
+    lv_obj_set_style_text_font(ampmLabel, &lv_font_montserrat_22, LV_STATE_DEFAULT);
 
     ttgo->power->adc1Enable(AXP202_VBUS_CONNECT_IRQ | AXP202_VBUS_VOL_ADC1 | AXP202_VBUS_CUR_ADC1 | AXP202_BATT_CUR_ADC1 | AXP202_BATT_VOL_ADC1, true);
 }
@@ -127,10 +135,24 @@ void updateDisplay(){
        break;
    }
 
+    int hh_converted = hh;
+    bool isPM = hh>=12;
+    String txtampm = "";
 
-    lv_label_set_text_fmt(timeLabel, "%02d%s%02d", hh,dot,mm);
-//    lv_label_set_text_fmt(dateLabel, "%s %02d/%02d/%02d",weekDay, mmonth, dday, yyear);
+    if (!use24HS){
+        if (hh_converted>=12){
+            hh_converted-=12;
+            txtampm ="PM";
+        } else {
+            txtampm ="AM";
+        }
+        if (hh_converted==0) hh_converted=12;
+    }
+
+    lv_label_set_text_fmt(timeLabel, "%02d%s%02d", hh_converted,dot,mm);
     lv_label_set_text_fmt(dateLabel, "%s, %s %02d",weekDay, monthtext, dday);
+
+    lv_label_set_text_fmt(ampmLabel, "%s", txtampm);
 
     int per = ttgo->power->getBattPercentage();
     String baticon = LV_SYMBOL_BATTERY_EMPTY;

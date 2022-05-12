@@ -6,6 +6,7 @@ static lv_obj_t * myScreen;
 static lv_obj_t * calendar;
 static lv_obj_t * rollerHour;
 static lv_obj_t * rollerMin;
+bool isScrolling = false;
 
 void LaunchSetDate(){
 
@@ -22,6 +23,8 @@ void LaunchSetDate(){
     lv_obj_set_scroll_dir(panel, LV_DIR_HOR);
     lv_obj_set_style_pad_gap(panel, 0, 0);
     lv_obj_set_style_pad_all(panel, 0,0);
+    lv_obj_add_event_cb(panel, event_scrolling, LV_EVENT_SCROLL_BEGIN , NULL);
+    lv_obj_add_event_cb(panel, event_scrolling, LV_EVENT_SCROLL_END , NULL);
 
     static lv_style_t scrollbarstyle;
     lv_style_init(&scrollbarstyle);
@@ -111,11 +114,12 @@ void LaunchSetDate(){
 
     lv_obj_align(rollerHour, LV_ALIGN_CENTER, -50,-30);
     lv_obj_align(rollerMin, LV_ALIGN_CENTER, 50,-30);
-//    lv_obj_add_event_cb(rollerHour, event_handler, LV_EVENT_VALUE_CHANGED, NULL);
 
     static lv_style_t style_sel1;
     lv_style_init(&style_sel1);
     lv_style_set_text_font(&style_sel1, &lv_font_montserrat_22);
+    lv_style_set_radius(&style_sel1, 50);
+
 
     lv_obj_t * ok = lv_btn_create(t1);
     lv_obj_align(ok,LV_ALIGN_BOTTOM_RIGHT, 0,0);
@@ -150,17 +154,9 @@ static void event_handler(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_current_target(e);
-    if(code == LV_EVENT_VALUE_CHANGED) {
-        /*
-        char buf[32];
-        lv_roller_get_selected_str(obj, buf, sizeof(buf));
-        LV_LOG_USER("Selected month: %s\n", buf);*/
+    if(code == LV_EVENT_VALUE_CHANGED && !isScrolling) {
         lv_calendar_date_t date;
         if (lv_calendar_get_pressed_date(obj, &date)){
-            //Serial.println("TEST CAL");
-            //char strBuf[100];
-            //sprintf(strBuf,"clicked date %02d.%02d.%d", date.day, date.month, date.year);
-            //Serial.println(strBuf);
             lv_calendar_set_today_date(obj, date.year, date.month, date.day);
 
         }
@@ -182,4 +178,14 @@ static void event_ok(lv_event_t * e){
 static void event_cancel(lv_event_t * e){
     lv_scr_load(mainScreen);
     lv_obj_del(myScreen);
+}
+
+static void  event_scrolling(lv_event_t * e){
+     lv_event_code_t code = lv_event_get_code(e);
+     if (code == LV_EVENT_SCROLL_BEGIN){
+         isScrolling = true;
+     }
+     if (code == LV_EVENT_SCROLL_END){
+         isScrolling = false;
+     }
 }
