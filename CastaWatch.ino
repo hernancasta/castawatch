@@ -91,21 +91,45 @@ void setup() {
      * **************************/
 
     ttgo->enableAudio();
-    ttgo->disableAudio();
+    ttgo->enableLDO3();
+    #if defined(STANDARD_BACKPLANE)
+        out = new AudioOutputI2S(0, 1);
+    #elif defined(EXTERNAL_DAC_BACKPLANE)
+        out = new AudioOutputI2S();
+        //External DAC decoding
+        out->SetPinout(TWATCH_DAC_IIS_BCK, TWATCH_DAC_IIS_WS, TWATCH_DAC_IIS_DOUT);
+    #endif
+    mp3 = new AudioGeneratorMP3();
+
+//    ttgo->disableAudio();
 }
 
 bool lowbright = false;
+unsigned long lastTouch = 0;
+unsigned long lastUpdateClock = 0;
 
 void loop() {
     lv_task_handler();
-    updateDisplay();
-    delay(5);
+    if (millis()-lastUpdateClock>1000){
+        lastUpdateClock = millis();
+        updateDisplay();
+    }
+    //delay(5);
+
+    int16_t x, y;
+    if (ttgo->getTouch(x,y)){
+        lastTouch = millis();
+        lowbright = false;
+    }
+    if (millis()-lastTouch>10000){
+        lowbright = true;
+    }
 
     if (irq){
         ttgo->power->readIRQ();
         if (ttgo->power->isPEKShortPressIRQ()){
-            Serial.printf("CLICK!\n");
-            lowbright = !lowbright;
+            //Serial.printf("CLICK!\n");
+            //lowbright = !lowbright;
             irq=false;
             ttgo->power->clearIRQ();
             GoSleep();
@@ -116,6 +140,12 @@ void loop() {
         } else {
             ttgo->setBrightness(brightness);
         }
+
+    if (mp3->isRunning()){
+        if (!mp3->loop()){
+            mp3->stop();
+        } 
+    }
 }
 
 

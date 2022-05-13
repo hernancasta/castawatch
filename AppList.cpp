@@ -33,6 +33,13 @@ static void event_handler_btn1(lv_event_t * e)
             LaunchGeneralSettings();
         }
 
+        if (target == btn5){
+            if (mp3->isRunning()){
+                mp3->stop();
+            } else {
+                PlaySound(0);
+            }
+        }
 
 
     }
