@@ -149,9 +149,13 @@ void updateDisplay(){
         if (hh_converted==0) hh_converted=12;
     }
 
-    lv_label_set_text_fmt(timeLabel, "%02d%s%02d", hh_converted,dot,mm);
-    lv_label_set_text_fmt(dateLabel, "%s, %s %02d",weekDay, monthtext, dday);
+    if (use24HS){
+        lv_label_set_text_fmt(timeLabel, "%02d%s%02d", hh_converted,dot,mm);
+    } else {
+        lv_label_set_text_fmt(timeLabel, "%2d%s%02d", hh_converted,dot,mm);
+    }
 
+    lv_label_set_text_fmt(dateLabel, "%s, %s %02d",weekDay, monthtext, dday);
     lv_label_set_text_fmt(ampmLabel, "%s", txtampm);
 
     int per = ttgo->power->getBattPercentage();

@@ -11,9 +11,14 @@ void LaunchGeneralSettings(){
     lv_scr_load(myScreen);    
     lv_obj_set_scroll_dir(myScreen, LV_DIR_VER);
 
+    static lv_style_t lblStyle;
+    lv_style_init(&lblStyle);
+    lv_style_set_text_font(&lblStyle, &lv_font_montserrat_22);
+
     // Use 24HS
     lv_obj_t * lbl = lv_label_create(myScreen);
-    lv_label_set_text(lbl, "Use 24 Hs format");
+    lv_label_set_text(lbl, "Format 24HS");
+    lv_obj_add_style(lbl, &lblStyle, LV_PART_MAIN);
 
     lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 0,0);
 
@@ -26,8 +31,9 @@ void LaunchGeneralSettings(){
 
     //Brightness
     lbl = lv_label_create(myScreen);
-    lv_label_set_text(lbl, "Brightness");
+    lv_label_set_text(lbl, "BackLight");
     lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 0,50);
+    lv_obj_add_style(lbl, &lblStyle, LV_PART_MAIN);
 
     lv_obj_t * slider = lv_slider_create(myScreen);
     lv_slider_set_range(slider, 1,255);
