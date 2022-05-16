@@ -42,6 +42,23 @@ void LaunchGeneralSettings(){
     lv_obj_align(slider, LV_ALIGN_TOP_RIGHT, -10, 50);
     lv_slider_set_value(slider, brightness, LV_ANIM_OFF);
     lv_obj_add_event_cb(slider, event_slider, LV_EVENT_VALUE_CHANGED, NULL);
+
+    // Volume
+    lbl = lv_label_create(myScreen);
+    lv_label_set_text(lbl, "Volume");
+    lv_obj_align(lbl, LV_ALIGN_TOP_LEFT, 0,100);
+    lv_obj_add_style(lbl, &lblStyle, LV_PART_MAIN);
+
+    slider = lv_slider_create(myScreen);
+    lv_slider_set_range(slider, 0,100);
+    lv_slider_set_mode(slider, LV_SLIDER_MODE_NORMAL);
+    lv_obj_set_size(slider, 120,20);
+    lv_obj_align(slider, LV_ALIGN_TOP_RIGHT, -10, 100);
+    lv_slider_set_value(slider, (int)(volume * 100), LV_ANIM_OFF);
+    lv_obj_add_event_cb(slider, event_slider_volume, LV_EVENT_VALUE_CHANGED, NULL);
+
+
+
     //Close
      lv_obj_t * btn = lv_btn_create(myScreen);
 
@@ -56,10 +73,6 @@ void LaunchGeneralSettings(){
     lv_label_set_text(lbl, "Close");
 
     lv_obj_add_event_cb(btn, event_close, LV_EVENT_CLICKED, NULL);
-
-
-
-
     lv_obj_align(btn, LV_ALIGN_BOTTOM_MID, 0,0);
 }
 
@@ -84,6 +97,17 @@ static void event_slider(lv_event_t * e)
     lv_obj_t * obj = lv_event_get_target(e);
     if(code == LV_EVENT_VALUE_CHANGED) {
         brightness = lv_slider_get_value(obj);
+    }
+
+}
+
+static void event_slider_volume(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    if(code == LV_EVENT_VALUE_CHANGED) {
+        volume = (float)lv_slider_get_value(obj) / 100.0f;
+        out->SetGain(volume);
     }
 
 }

@@ -4,8 +4,11 @@
 #include "MainDisplay.h"
 #include "CastaWatchCommon.h"
 #include "AppList.h"
+#include <driver/i2s.h>
+#include "Vumeter.h"
 
 bool irq = false;
+
 
 void setup() {
     Serial.begin(115200);
@@ -86,22 +89,13 @@ void setup() {
     ttgo->power->enableIRQ(AXP202_PEK_SHORTPRESS_IRQ,true);
     ttgo->power->clearIRQ();
 
-    /****************************
-     * Initialize Audio
-     * **************************/
-
-    ttgo->enableAudio();
-    ttgo->enableLDO3();
-    #if defined(STANDARD_BACKPLANE)
-        out = new AudioOutputI2S(0, 1);
-    #elif defined(EXTERNAL_DAC_BACKPLANE)
-        out = new AudioOutputI2S();
-        //External DAC decoding
-        out->SetPinout(TWATCH_DAC_IIS_BCK, TWATCH_DAC_IIS_WS, TWATCH_DAC_IIS_DOUT);
-    #endif
-    mp3 = new AudioGeneratorMP3();
+  
 
 //    ttgo->disableAudio();
+
+    InitializeSpeaker();
+
+
 }
 
 bool lowbright = false;
@@ -113,23 +107,22 @@ void loop() {
     if (millis()-lastUpdateClock>1000){
         lastUpdateClock = millis();
         updateDisplay();
+       // uint32_t heapsize = xPortGetFreeHeapSize();
+       // Serial.printf("%d\n", heapsize);
     }
-    //delay(5);
 
     int16_t x, y;
     if (ttgo->getTouch(x,y)){
         lastTouch = millis();
         lowbright = false;
     }
-    if (millis()-lastTouch>10000){
+    if (millis()-lastTouch>10000 && IsAudioOutMode){
         lowbright = true;
     }
 
     if (irq){
         ttgo->power->readIRQ();
         if (ttgo->power->isPEKShortPressIRQ()){
-            //Serial.printf("CLICK!\n");
-            //lowbright = !lowbright;
             irq=false;
             ttgo->power->clearIRQ();
             GoSleep();
@@ -141,11 +134,13 @@ void loop() {
             ttgo->setBrightness(brightness);
         }
 
-    if (mp3->isRunning()){
+    if (IsAudioOutMode && mp3->isRunning()){
         if (!mp3->loop()){
             mp3->stop();
         } 
     }
+    if (!IsAudioOutMode)
+        UpdateVumeter();
 }
 
 

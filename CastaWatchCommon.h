@@ -14,8 +14,14 @@ extern bool use24HS;
 extern uint8_t brightness;
 extern AudioGeneratorMP3 *mp3;
 extern AudioOutputI2S *out;
+extern float volume;
+
+extern bool IsAudioOutMode;
 
 void GoSleep();
 void PlaySound(int index);
+
+void InitializeSpeaker();
+void InitializeMic();
 
 #endif

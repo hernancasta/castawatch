@@ -19,6 +19,11 @@
 #undef STANDARD_BACKPLANE
 #define EXTERNAL_DAC_BACKPLANE
 
+// TWATCH 2020 V3 PDM microphone pin
+#define MIC_DATA            2
+#define MIC_CLOCK           0
+#define BUFFER_SIZE (2*1024)
+
 #endif
 
 #include <LilyGoWatch.h>

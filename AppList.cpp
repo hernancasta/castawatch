@@ -6,6 +6,7 @@
 
 #include "SetDateTime.h"
 #include "GeneralSettingsDisplay.h"
+#include "Vumeter.h"
 
 static lv_obj_t * list1;
 lv_obj_t * btn1;
@@ -13,6 +14,7 @@ lv_obj_t * btn2;
 lv_obj_t * btn3;
 lv_obj_t * btn4;
 lv_obj_t * btn5;
+lv_obj_t * btn6;
 
 
 static void event_handler_btn1(lv_event_t * e)
@@ -40,7 +42,9 @@ static void event_handler_btn1(lv_event_t * e)
                 PlaySound(0);
             }
         }
-
+       if (target == btn6){
+           LaunchVumeter();
+       }
 
     }
 }
@@ -66,4 +70,6 @@ void initializeAppList(lv_obj_t* parent){
     lv_obj_add_event_cb(btn4, event_handler_btn1, LV_EVENT_CLICKED, NULL);
     btn5=lv_list_add_btn(list1,LV_SYMBOL_BELL, "Alarms");
     lv_obj_add_event_cb(btn5, event_handler_btn1, LV_EVENT_CLICKED, NULL);
+    btn6=lv_list_add_btn(list1,LV_SYMBOL_AUDIO, "Vumeter");
+    lv_obj_add_event_cb(btn6, event_handler_btn1, LV_EVENT_CLICKED, NULL);
 }
