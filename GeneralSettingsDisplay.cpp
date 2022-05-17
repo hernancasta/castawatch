@@ -3,8 +3,10 @@
 #include "CastaWatchCommon.h"
 
 static lv_obj_t * myScreen;
+bool updated = false;
 
 void LaunchGeneralSettings(){
+    updated = false;
 
     myScreen =  lv_obj_create(NULL);
     lv_obj_set_size(myScreen, 240, 240);
@@ -82,6 +84,7 @@ static void event_handler(lv_event_t * e)
     lv_obj_t * obj = lv_event_get_target(e);
     if(code == LV_EVENT_VALUE_CHANGED) {
         use24HS = lv_obj_has_state(obj, LV_STATE_CHECKED);
+        updated = true;
     }
 }
 
@@ -89,7 +92,11 @@ static void event_close(lv_event_t * e)
 {
     lv_scr_load(mainScreen);
     lv_obj_del(myScreen);
+    if (updated){
+        SaveConfig();
+    }
 }
+
 
 static void event_slider(lv_event_t * e)
 {
@@ -97,6 +104,7 @@ static void event_slider(lv_event_t * e)
     lv_obj_t * obj = lv_event_get_target(e);
     if(code == LV_EVENT_VALUE_CHANGED) {
         brightness = lv_slider_get_value(obj);
+        updated = true;
     }
 
 }
@@ -108,6 +116,7 @@ static void event_slider_volume(lv_event_t * e)
     if(code == LV_EVENT_VALUE_CHANGED) {
         volume = (float)lv_slider_get_value(obj) / 100.0f;
         out->SetGain(volume);
+        updated = true;
     }
 
 }

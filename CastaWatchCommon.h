@@ -24,4 +24,7 @@ void PlaySound(int index);
 void InitializeSpeaker();
 void InitializeMic();
 
+void SaveConfig();
+void LoadConfig();
+
 #endif

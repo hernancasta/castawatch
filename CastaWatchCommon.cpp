@@ -6,11 +6,11 @@
 #include "Sounds/ohno.h"
 #include <driver/i2s.h>
 #include "CastaWatchCommon.h"
-
+#include <Preferences.h>
 
 TTGOClass *ttgo;
 lv_obj_t * mainScreen;
-bool use24HS = false;
+bool use24HS;
 uint8_t brightness = 255;
 float volume = 0.5f;
 bool IsAudioOutMode = true;
@@ -19,6 +19,8 @@ AudioGeneratorMP3 *mp3;
 AudioFileSourcePROGMEM *file;
 AudioOutputI2S *out;
 AudioFileSourceID3 *id3;
+
+Preferences preferences;
 
 void GoSleep(){
 
@@ -104,4 +106,25 @@ void InitializeSpeaker(){
     #endif
     mp3 = new AudioGeneratorMP3();
 
+}
+
+void SaveConfig(){
+    preferences.begin("castawatch", false);
+
+    preferences.putBool("Use24HS", use24HS);
+    preferences.putUChar("Brightness", brightness);
+    preferences.putFloat("Volume", volume);
+
+    preferences.end();
+}
+
+void LoadConfig(){
+
+    preferences.begin("castawatch", false);
+
+    use24HS = preferences.getBool("Use24HS", false);
+    brightness = preferences.getUChar("Brightness", 255);
+    volume = preferences.getFloat("Volume", 0.5f);
+
+    preferences.end();
 }

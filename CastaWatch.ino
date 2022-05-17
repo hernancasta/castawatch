@@ -9,7 +9,6 @@
 
 bool irq = false;
 
-
 void setup() {
     Serial.begin(115200);
 
@@ -26,6 +25,7 @@ void setup() {
     ttgo->setBrightness(128);
     ttgo->lvgl_begin();
 
+    LoadConfig();
     
     initializeStyle();
     mainScreen = lv_scr_act();
