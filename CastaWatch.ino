@@ -6,11 +6,15 @@
 #include "AppList.h"
 #include <driver/i2s.h>
 #include "Vumeter.h"
+#include "Alarms.h"
 
 bool irq = false;
+bool rtcIrq = false;
 
 void setup() {
     Serial.begin(115200);
+
+    print_wakeup_reason();
 
     /**************************
         Initialize Watch
@@ -26,7 +30,7 @@ void setup() {
     ttgo->lvgl_begin();
 
     LoadConfig();
-    
+
     initializeStyle();
     mainScreen = lv_scr_act();
 
@@ -89,13 +93,23 @@ void setup() {
     ttgo->power->enableIRQ(AXP202_PEK_SHORTPRESS_IRQ,true);
     ttgo->power->clearIRQ();
 
-  
-
-//    ttgo->disableAudio();
-
     InitializeSpeaker();
 
+    /****************************
+     * Setup interruptions for alarms
+     * *************************/
+    pinMode(RTC_INT_PIN, INPUT_PULLUP);
+    attachInterrupt(RTC_INT_PIN, [] {
+        rtcIrq = 1;
+    }, FALLING);
 
+    /*****************************
+     * Initialize alarms
+     * ***************************/
+    InitializeAlarms();
+    SetNextAlarm();
+
+    Serial.println("Initialization completed");
 }
 
 bool lowbright = false;
@@ -129,10 +143,10 @@ void loop() {
         }
     }
     if (lowbright){
-            ttgo->setBrightness(1);
-        } else {
-            ttgo->setBrightness(brightness);
-        }
+        ttgo->setBrightness(1);
+    } else {
+        ttgo->setBrightness(brightness);
+    }
 
     if (IsAudioOutMode && mp3->isRunning()){
         if (!mp3->loop()){
@@ -141,6 +155,16 @@ void loop() {
     }
     if (!IsAudioOutMode)
         UpdateVumeter();
+
+    if (rtcIrq) {
+        rtcIrq = 0;
+        Serial.println("Alarm!!!\n");
+        ttgo->rtc->resetAlarm();
+        lastTouch = millis();
+        PlayAlarm();
+        // should remove if is not recurrent
+        SetNextAlarm();
+    }
 }
 
 

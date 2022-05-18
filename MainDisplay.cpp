@@ -1,6 +1,7 @@
 #include "config.h"
 #include "Functions.h"
 #include "CastaWatchCommon.h"
+#include "Alarms.h"
 
 /***********************************************************************************************
  *   Main Clock Display
@@ -180,7 +181,7 @@ void updateDisplay(){
     }
 
     String connected = "";
-    if (ttgo->power->isVbusPlugInIRQ()){
+    if (ttgo->power->isVBUSPlug()){
         connected = LV_SYMBOL_USB;
     }
 
@@ -189,5 +190,9 @@ void updateDisplay(){
         charging = LV_SYMBOL_CHARGE;
     }
 
-    lv_label_set_text_fmt(batLabel, "%s %s %d%% %s %s", connected , charging , per , color , baticon);
+    String alarm ="";
+    if (AlarmScheduled>=0){
+        alarm = LV_SYMBOL_BELL;
+    }
+    lv_label_set_text_fmt(batLabel, "%s %s %s %d%% %s %s",alarm, connected , charging , per , color , baticon);
 }

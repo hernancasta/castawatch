@@ -19,6 +19,7 @@ extern float volume;
 extern bool IsAudioOutMode;
 
 void GoSleep();
+void print_wakeup_reason();
 void PlaySound(int index);
 
 void InitializeSpeaker();

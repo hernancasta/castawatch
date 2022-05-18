@@ -3,10 +3,16 @@
 #include "AudioFileSourceID3.h"
 #include "AudioGeneratorMP3.h"
 #include "AudioOutputI2S.h"
-#include "Sounds/ohno.h"
 #include <driver/i2s.h>
 #include "CastaWatchCommon.h"
 #include <Preferences.h>
+#include "Alarms.h"
+
+#include "Sounds/wara.h"
+#include "Sounds/alarm1.h"
+#include "Sounds/alarm2.h"
+#include "Sounds/alarm3.h"
+#include "Sounds/alarm4.h"
 
 TTGOClass *ttgo;
 lv_obj_t * mainScreen;
@@ -34,21 +40,70 @@ void GoSleep(){
 
     // PEK Button WakeUp    
     esp_sleep_enable_ext1_wakeup(GPIO_SEL_35, ESP_EXT1_WAKEUP_ALL_LOW);
-    // TOUCH SCREEN  Wakeup source
-//     pinMode(TOUCH_INT, INPUT);
-//    esp_sleep_enable_ext1_wakeup(GPIO_SEL_38 , ESP_EXT1_WAKEUP_ALL_LOW);
 
+    // Timer WakeUP (Next configured Alarm)
+
+    uint32_t _TimeToNextAlarm = TimeToNextAlarm() -3;
+    if (_TimeToNextAlarm>0){
+        esp_sleep_enable_timer_wakeup(1000000 * _TimeToNextAlarm); //sec
+    }
+  
     esp_deep_sleep_start();
 
 
 }
 
+/*
+Method to print the reason by which ESP32
+has been awaken from sleep
+*/
+void print_wakeup_reason(){
+  esp_sleep_wakeup_cause_t wakeup_reason;
+
+  wakeup_reason = esp_sleep_get_wakeup_cause();
+
+  switch(wakeup_reason)
+  {
+    case ESP_SLEEP_WAKEUP_EXT0 : Serial.println("Wakeup caused by external signal using RTC_IO"); break;
+    case ESP_SLEEP_WAKEUP_EXT1 : Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
+    case ESP_SLEEP_WAKEUP_TIMER : Serial.println("Wakeup caused by timer"); break;
+    case ESP_SLEEP_WAKEUP_TOUCHPAD : Serial.println("Wakeup caused by touchpad"); break;
+    case ESP_SLEEP_WAKEUP_ULP : Serial.println("Wakeup caused by ULP program"); break;
+    case ESP_SLEEP_WAKEUP_GPIO: Serial.println("Wakeup caused by GPIO"); break;
+    default : Serial.printf("Wakeup was not caused by deep sleep: %d\n",wakeup_reason); break;
+  }
+}
+
 void PlaySound(int index){
+
+    if (mp3->isRunning())
+    {
+        mp3->stop();
+    }
 
     // workaround to allow use I2S_0 shared between mic and speaker
     InitializeSpeaker();
 
-    file = new AudioFileSourcePROGMEM(ohno_sound, sizeof(ohno_sound));
+    switch (index)
+    {
+    case 1:
+        file = new AudioFileSourcePROGMEM(alarm1_sound, sizeof(alarm1_sound));
+        break;
+    case 2:
+        file = new AudioFileSourcePROGMEM(alarm2_sound, sizeof(alarm2_sound));
+        break;
+    case 3:
+        file = new AudioFileSourcePROGMEM(alarm3_sound, sizeof(alarm3_sound));
+        break;
+    case 4:
+        file = new AudioFileSourcePROGMEM(alarm4_sound, sizeof(alarm4_sound));
+        break;
+    
+    default:
+        file = new AudioFileSourcePROGMEM(wara_sound, sizeof(wara_sound));
+        break;
+    }
+
     id3 = new AudioFileSourceID3(file);
     mp3->begin(id3, out);
     out->SetGain(volume);

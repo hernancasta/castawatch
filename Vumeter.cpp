@@ -5,7 +5,6 @@
 uint8_t buffer[BUFFER_SIZE] = {0};
 #include <arduinoFFT.h>
 
-
 // TWATCH 2020 V3 PDM microphone pin
 #define MIC_DATA            2
 #define MIC_CLOCK           0
@@ -22,7 +21,7 @@ double vReal[SAMPLES];
 double vImag[SAMPLES];
 unsigned long newTime;arduinoFFT FFT = arduinoFFT(vReal, vImag, SAMPLES, SAMPLING_FREQ);
 
-void close(){
+static void close(){
     lv_scr_load(mainScreen);
     lv_obj_del(myScreen);
     InitializeSpeaker();
@@ -30,7 +29,10 @@ void close(){
 
 static void event_close(lv_event_t * e)
 {
-    close();
+    lv_dir_t gesture = lv_indev_get_gesture_dir(lv_indev_get_act());
+    if (gesture == LV_DIR_RIGHT){
+        close();
+    }
 }
 
 uint32_t color[16] = {0}; 

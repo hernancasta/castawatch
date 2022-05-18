@@ -7,6 +7,7 @@
 #include "SetDateTime.h"
 #include "GeneralSettingsDisplay.h"
 #include "Vumeter.h"
+#include "SetAlarm.h"
 
 static lv_obj_t * list1;
 lv_obj_t * btn1;
@@ -24,7 +25,7 @@ static void event_handler_btn1(lv_event_t * e)
     if(code == LV_EVENT_CLICKED) {
         lv_obj_t * target = lv_event_get_target(e);
         String txt = lv_list_get_btn_text(list1, target);
-        Serial.println("CLICK! " + txt);
+//        Serial.println("CLICK! " + txt);
 
         // Set DateTime
         if (target == btn1){
@@ -35,16 +36,15 @@ static void event_handler_btn1(lv_event_t * e)
             LaunchGeneralSettings();
         }
 
+        //Set Alarms
         if (target == btn5){
-            if (mp3->isRunning()){
-                mp3->stop();
-            } else {
-                PlaySound(0);
-            }
+            LaunchSetAlarm();
         }
-       if (target == btn6){
-           LaunchVumeter();
-       }
+
+        //vumeter
+        if (target == btn6){
+            LaunchVumeter();
+        }
 
     }
 }
@@ -58,7 +58,6 @@ void initializeAppList(lv_obj_t* parent){
     lv_obj_set_style_text_font(list1, &lv_font_montserrat_22, LV_STATE_DEFAULT);
     lv_obj_center(list1);
     lv_obj_set_scroll_dir(list1, LV_DIR_VER);
-
 
     btn1=lv_list_add_btn(list1,LV_SYMBOL_SETTINGS, "Set Date / Time");
     lv_obj_add_event_cb(btn1, event_handler_btn1, LV_EVENT_CLICKED, NULL);
