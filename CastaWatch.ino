@@ -116,6 +116,11 @@ bool lowbright = false;
 unsigned long lastTouch = 0;
 unsigned long lastUpdateClock = 0;
 
+void activateScreen(){
+        lastTouch = millis();
+        lowbright = false;
+}
+
 void loop() {
     lv_task_handler();
     if (millis()-lastUpdateClock>1000){
@@ -127,8 +132,7 @@ void loop() {
 
     int16_t x, y;
     if (ttgo->getTouch(x,y)){
-        lastTouch = millis();
-        lowbright = false;
+        activateScreen();
     }
     if (millis()-lastTouch>10000 && IsAudioOutMode){
         lowbright = true;
@@ -160,9 +164,8 @@ void loop() {
         rtcIrq = 0;
         Serial.println("Alarm!!!\n");
         ttgo->rtc->resetAlarm();
-        lastTouch = millis();
+        activateScreen();
         PlayAlarm();
-        // should remove if is not recurrent
         SetNextAlarm();
     }
 }

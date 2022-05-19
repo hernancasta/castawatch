@@ -9,8 +9,9 @@ static lv_obj_t * rollerHour;
 static lv_obj_t * rollerMin;
 static lv_obj_t * list1;
 static lv_obj_t * ddAlarmSound;
+static lv_obj_t * swRepeat;
 
-
+// Close alarms set
 static void close(){
     
     lv_scr_load(mainScreen);
@@ -18,6 +19,7 @@ static void close(){
     InitializeSpeaker();
 }
 
+// Gesture to close alarms
 void event_close(lv_event_t * e)
 {
     lv_dir_t gesture = lv_indev_get_gesture_dir(lv_indev_get_act());
@@ -26,12 +28,13 @@ void event_close(lv_event_t * e)
     }
 }
 
+// close new alarm ui
 void closenewalarm(){
     lv_scr_load(myScreen);
     lv_obj_del(myNewAlarm);
 }
 
-uint32_t selectedindex;
+uint32_t selectedindex; //selected alarm index
 
 static void event_cb(lv_event_t * e)
 {
@@ -54,7 +57,7 @@ void event_alarmdelete(lv_event_t * e){
     char *code = (char*)malloc(25 * sizeof(char));
     sprintf(code, "Delete the alarm %02d:%02d? ", Alarms[selectedindex].hour, Alarms[selectedindex].minute);
 
-    lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Delete Alarm", code, btns, true);
+    lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Delete Alarm", code, btns, false);
     lv_obj_add_event_cb(mbox1, event_cb, LV_EVENT_VALUE_CHANGED, NULL);
     lv_obj_center(mbox1);
 
@@ -64,10 +67,15 @@ void rebuildlist(){
 
     lv_obj_clean(list1);
 
+    if (AlarmCount==0){
+        lv_obj_t * btnlist1 = lv_list_add_btn(list1, NULL, "No Alarms Configured");
+        return;
+    }
+
     for(int i=0;i<AlarmCount;i++){
         char *code = (char*)malloc(10 * sizeof(char));
         sprintf(code, "%02d:%02d", Alarms[i].hour, Alarms[i].minute);
-        lv_obj_t * btnlist = lv_list_add_btn(list1, LV_SYMBOL_BULLET, code);
+        lv_obj_t * btnlist = lv_list_add_btn(list1, NULL, code);
         lv_obj_add_event_cb(btnlist, event_alarmdelete, LV_EVENT_LONG_PRESSED, NULL );
     }    
 
@@ -78,6 +86,9 @@ void addnewalarm_event(lv_event_t * e){
     newAlarm.hour = lv_roller_get_selected(rollerHour);
     newAlarm.minute = lv_roller_get_selected(rollerMin);
     newAlarm.setting1 = lv_dropdown_get_selected(ddAlarmSound);
+    if (lv_obj_has_state(swRepeat, LV_STATE_CHECKED)){
+        newAlarm.setting2 = 1;
+    }
     AddNewAlarm(newAlarm);
     closenewalarm();
     Serial.printf("Alarms %d\n", AlarmCount);
@@ -89,6 +100,12 @@ void cancelnewalarm_event(lv_event_t * e){
 }
 
 void event_alarmsound(lv_event_t * e){
+    if (mp3->isRunning()){
+        mp3->stop();
+    }
+}
+
+void event_testsound (lv_event_t * e){
    uint16_t index = lv_dropdown_get_selected(ddAlarmSound);
    PlaySound(index);
 }
@@ -156,13 +173,14 @@ void event_newalarm(lv_event_t * e){
     lv_obj_add_style(rollerHour, &style_sel, LV_PART_MAIN);
     lv_obj_add_style(rollerMin, &style_sel, LV_PART_MAIN);
 
+    lv_coord_t vert = -51;
     lbl = lv_label_create(myNewAlarm);
-    lv_obj_align(lbl,LV_ALIGN_CENTER,0,-35);
+    lv_obj_align(lbl,LV_ALIGN_CENTER,0,vert);
     lv_obj_add_style(lbl, &style_sel, LV_PART_MAIN);
     lv_label_set_text(lbl,":");
 
-    lv_obj_align(rollerHour, LV_ALIGN_CENTER, -50,-35);
-    lv_obj_align(rollerMin, LV_ALIGN_CENTER, 50,-35);
+    lv_obj_align(rollerHour, LV_ALIGN_CENTER, -50,vert);
+    lv_obj_align(rollerMin, LV_ALIGN_CENTER, 50,vert);
 
     RTC_Date tnow = ttgo->rtc->getDateTime();
     uint8_t hh = tnow.hour;
@@ -177,8 +195,22 @@ void event_newalarm(lv_event_t * e){
             "Alarm 4\n"
             "Alarm 5"
             );
-    lv_obj_align(ddAlarmSound, LV_ALIGN_CENTER, 0, 70 );
+    lv_obj_align(ddAlarmSound, LV_ALIGN_CENTER, -40, 38 );
     lv_obj_add_event_cb(ddAlarmSound, event_alarmsound ,LV_EVENT_VALUE_CHANGED, NULL);
+
+    btn = lv_btn_create(myNewAlarm);
+    lv_obj_align(btn, LV_ALIGN_CENTER,70,38);
+    lbl = lv_label_create(btn);
+    lv_obj_align(lbl,LV_ALIGN_CENTER,0,0);
+    lv_label_set_text(lbl,"Play");
+    lv_obj_add_event_cb(btn, event_testsound ,LV_EVENT_CLICKED, NULL);
+
+    swRepeat = lv_switch_create(myNewAlarm);
+    lv_obj_align(swRepeat, LV_ALIGN_CENTER, 30, 70);
+    lbl = lv_label_create(myNewAlarm);
+    lv_obj_align(lbl,LV_ALIGN_CENTER,-30,70);
+    lv_label_set_text(lbl,"Repeat");
+
 }
 
 void LaunchSetAlarm(){

@@ -126,6 +126,12 @@ void PlayAlarm() {
 
     PlaySound(Alarms[AlarmScheduled].setting1);
 
+    if (Alarms[AlarmScheduled].setting2 == 0){
+        // no repeat alarm;
+        DeleteAlarm(AlarmScheduled);
+        AlarmScheduled = -1;
+    }
+
     static const char * btns[] = {"OK", "", ""};
 
     msg = lv_msgbox_create(NULL, "Alarm!", "", btns, false);
