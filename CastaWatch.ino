@@ -134,8 +134,12 @@ void loop() {
     if (ttgo->getTouch(x,y)){
         activateScreen();
     }
-    if (millis()-lastTouch>10000 && IsAudioOutMode){
+    if (millis()-lastTouch>TimeToBacklightOff && IsAudioOutMode){
         lowbright = true;
+    }
+
+    if (millis()-lastTouch>(TimeToSleep)){
+        GoSleep();
     }
 
     if (irq){

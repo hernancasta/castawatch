@@ -20,6 +20,8 @@ bool use24HS;
 uint8_t brightness = 255;
 float volume = 0.5f;
 bool IsAudioOutMode = true;
+uint64_t TimeToSleep = 1000 * 60 * 15 ; //15 min
+uint64_t TimeToBacklightOff = 1000 * 10; // 10 sec
 
 AudioGeneratorMP3 *mp3;
 AudioFileSourcePROGMEM *file;
@@ -29,6 +31,7 @@ AudioFileSourceID3 *id3;
 Preferences preferences;
 
 void GoSleep(){
+    Serial.println("Going to sleep");
 
     ttgo->displaySleep();
     ttgo->power->setPowerOutPut(AXP202_LDO3, false);
@@ -45,7 +48,9 @@ void GoSleep(){
 
     uint32_t _TimeToNextAlarm = TimeToNextAlarm() -3;
     if (_TimeToNextAlarm>0){
-        esp_sleep_enable_timer_wakeup(1000000 * _TimeToNextAlarm); //sec
+        uint64_t totaltime = (uint64_t)1000000 * (uint64_t)_TimeToNextAlarm;
+        esp_sleep_enable_timer_wakeup(totaltime); //sec
+        Serial.printf("Timer to wakeup %" PRIu64 "\n", totaltime);
     }
   
     esp_deep_sleep_start();

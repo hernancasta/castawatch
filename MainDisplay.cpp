@@ -59,7 +59,7 @@ void updateDisplay(){
   uint16_t mmonth = tnow.month;
   uint16_t yyear = tnow.year;
 
-  String weekDay = "SUN";
+   const char * weekDay = "SUN";
    switch (weekday(yyear, mmonth, dday))
    {
    case 0:
@@ -88,11 +88,11 @@ void updateDisplay(){
        break;
    }
 
-    String dot = ":";
+    const char * dot = ":";
 //    if (ss % 2 == 0){
 //       dot = " ";
 //    }
-   String monthtext = "";
+   const char * monthtext = "   ";
    switch (mmonth)
    {
    case 1:
@@ -138,7 +138,7 @@ void updateDisplay(){
 
     int hh_converted = hh;
     bool isPM = hh>=12;
-    String txtampm = "";
+    const char * txtampm = "  ";
 
     if (!use24HS){
         if (hh_converted>=12){
@@ -160,8 +160,8 @@ void updateDisplay(){
     lv_label_set_text_fmt(ampmLabel, "%s", txtampm);
 
     int per = ttgo->power->getBattPercentage();
-    String baticon = LV_SYMBOL_BATTERY_EMPTY;
-    String color = "#FF0000"; //RED
+    const char * baticon = LV_SYMBOL_BATTERY_EMPTY;
+    const char * color = "#FF0000"; //RED
     if (per>=25){
         baticon = LV_SYMBOL_BATTERY_1;
 //        color = "#FF8C00"; //ORANGE
@@ -180,19 +180,19 @@ void updateDisplay(){
         color = "#00FF00"; //GREEN
     }
 
-    String connected = "";
-    if (ttgo->power->isVBUSPlug()){
-        connected = LV_SYMBOL_USB;
+    const char * connected = LV_SYMBOL_USB;
+    if (!ttgo->power->isVBUSPlug()){
+        connected = "";
     }
 
-    String charging = "";
-    if (ttgo->power->isChargeing()){
-        charging = LV_SYMBOL_CHARGE;
+    const char * charging = LV_SYMBOL_CHARGE;
+    if (!ttgo->power->isChargeing()){
+        charging = "";
     }
 
-    String alarm ="";
-    if (AlarmScheduled>=0){
-        alarm = LV_SYMBOL_BELL;
+    const char * alarm =LV_SYMBOL_BELL;
+    if (AlarmScheduled<0){
+        alarm = "";
     }
     lv_label_set_text_fmt(batLabel, "%s %s %s %d%% %s %s",alarm, connected , charging , per , color , baticon);
 }

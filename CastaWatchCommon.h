@@ -15,6 +15,8 @@ extern uint8_t brightness;
 extern AudioGeneratorMP3 *mp3;
 extern AudioOutputI2S *out;
 extern float volume;
+extern uint64_t TimeToSleep; 
+extern uint64_t TimeToBacklightOff;
 
 extern bool IsAudioOutMode;
 

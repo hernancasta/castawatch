@@ -73,8 +73,12 @@ void rebuildlist(){
     }
 
     for(int i=0;i<AlarmCount;i++){
-        char *code = (char*)malloc(10 * sizeof(char));
-        sprintf(code, "%02d:%02d", Alarms[i].hour, Alarms[i].minute);
+        char *code = (char*)malloc(30 * sizeof(char));
+        const char * repeat = "      ";
+        if (Alarms[i].setting2>0){
+            repeat = "Repeat";
+        }
+        sprintf(code, "%02d. %02d:%02d %s",i+1, Alarms[i].hour, Alarms[i].minute, repeat);
         lv_obj_t * btnlist = lv_list_add_btn(list1, NULL, code);
         lv_obj_add_event_cb(btnlist, event_alarmdelete, LV_EVENT_LONG_PRESSED, NULL );
     }    
@@ -195,11 +199,11 @@ void event_newalarm(lv_event_t * e){
             "Alarm 4\n"
             "Alarm 5"
             );
-    lv_obj_align(ddAlarmSound, LV_ALIGN_CENTER, -40, 38 );
+    lv_obj_align(ddAlarmSound, LV_ALIGN_CENTER, -40, 37 );
     lv_obj_add_event_cb(ddAlarmSound, event_alarmsound ,LV_EVENT_VALUE_CHANGED, NULL);
 
     btn = lv_btn_create(myNewAlarm);
-    lv_obj_align(btn, LV_ALIGN_CENTER,70,38);
+    lv_obj_align(btn, LV_ALIGN_CENTER,70,37);
     lbl = lv_label_create(btn);
     lv_obj_align(lbl,LV_ALIGN_CENTER,0,0);
     lv_label_set_text(lbl,"Play");
@@ -220,15 +224,17 @@ void LaunchSetAlarm(){
     lv_scr_load(myScreen);
     lv_obj_add_event_cb(myScreen,event_close, LV_EVENT_GESTURE, NULL );
 
-    uint8_t status = ttgo->rtc->status2(); 
-    Serial.printf("%x \n", status);
+//    uint8_t status = ttgo->rtc->status2(); 
+//    Serial.printf("%x \n", status);
 
-    lv_obj_t * lbl = lv_label_create(myScreen);
-    lv_obj_align(myScreen, LV_ALIGN_TOP_LEFT, 0,0);
+    lv_obj_t * lbl;// = lv_label_create(myScreen);
+//    lv_obj_align(myScreen, LV_ALIGN_TOP_LEFT, 0,0);
 
+/*
     char *code = (char*)malloc(50 * sizeof(char));
     sprintf(code, "%x %d", status, status);
     lv_label_set_text(lbl, code);
+*/
 
     lv_obj_t * btn = lv_btn_create(myScreen);
     lv_obj_align(btn, LV_ALIGN_BOTTOM_MID, 0,0);
