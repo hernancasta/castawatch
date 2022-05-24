@@ -1,4 +1,3 @@
-
 #include "config.h"
 #include "Functions.h"
 #include "MainDisplay.h"
@@ -16,6 +15,7 @@ void setup() {
 
     print_wakeup_reason();
 
+    log_d("Initialize Watch");
     /**************************
         Initialize Watch
      **************************/
@@ -85,6 +85,7 @@ void setup() {
      * Setup Interruptions for WakeUp
      * ******************/
 
+    log_d("Setup Interruptions for WakeUp");
     pinMode(AXP202_INT, INPUT_PULLUP);
         attachInterrupt(AXP202_INT, [] {
             irq = true;
@@ -98,6 +99,7 @@ void setup() {
     /****************************
      * Setup interruptions for alarms
      * *************************/
+    log_d("Setup Interruptions for alarms");
     pinMode(RTC_INT_PIN, INPUT_PULLUP);
     attachInterrupt(RTC_INT_PIN, [] {
         rtcIrq = 1;
@@ -112,14 +114,7 @@ void setup() {
     Serial.println("Initialization completed");
 }
 
-bool lowbright = false;
-unsigned long lastTouch = 0;
 unsigned long lastUpdateClock = 0;
-
-void activateScreen(){
-        lastTouch = millis();
-        lowbright = false;
-}
 
 void loop() {
     lv_task_handler();

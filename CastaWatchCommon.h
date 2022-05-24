@@ -19,6 +19,8 @@ extern uint64_t TimeToSleep;
 extern uint64_t TimeToBacklightOff;
 
 extern bool IsAudioOutMode;
+extern bool lowbright;
+extern unsigned long lastTouch;
 
 void GoSleep();
 void print_wakeup_reason();
@@ -29,5 +31,7 @@ void InitializeMic();
 
 void SaveConfig();
 void LoadConfig();
+
+void activateScreen();
 
 #endif
